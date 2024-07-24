@@ -21,7 +21,7 @@ docker-compose up
 
 Start the application
 ```
-yarn start
+yarn dev
 ```
 
 Open the application in your browser
