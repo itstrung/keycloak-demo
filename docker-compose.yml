@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  postgres_db:
+    image: postgres:16.1-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    # ports:
+    #   - "8888:5432"
+    volumes:
+      - postgres_db:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+  
+  keycloak:
+    depends_on:
+      - postgres_db
+    build:
+      context: .
+      dockerfile: Dockerfile.keycloak
+      target: runner
+    environment:
+      # - KC_DB_URL= # no need if you specify the following
+      - KC_DB_URL_HOST=postgres_db
+      - KC_DB_URL_DATABASE=postgres
+      - KC_DB_URL_PORT=5432   
+      - KC_DB=postgres
+      - KC_DB_USERNAME=postgres
+      - KC_DB_PASSWORD=postgres
+      - KC_DB_SCHEMA=keycloak # default schema name
+      # - KC_PROXY_ADDRESS_FORWARDING=true
+      - KC_PROXY=none
+      # - KC_HOSTNAME= # a custom hostname for admin console. Defaults to localhost
+      - KEYCLOAK_ADMIN=admin # default admin username
+      - KEYCLOAK_ADMIN_PASSWORD=admin # default admin password
+      - KC_HOSTNAME_URL=http://127.0.0.1:8080 # allow FE outside of container to access keycloak https://stackoverflow.com/questions/70697745/keycloak-token-verification-fails-when-the-backend-is-running-in-a-docker-contai/70708121#70708121
+      
+    command: "start-dev"
+    ports:
+      - "8080:8080"
+
+networks:
+  default:
+    name: keycloak-demo-network
+
+volumes:
+  postgres_db:
