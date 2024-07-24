@@ -25,11 +25,7 @@ yarn dev
 ```
 
 Open the application in your browser
-```
-http://localhost:3000
-```
+[http://localhost:3000](http://localhost:3000)
 
 Open Keycloak in your browser
-```
-http://localhost:8080
-```
+[http://localhost:8080](http://localhost:8080)
